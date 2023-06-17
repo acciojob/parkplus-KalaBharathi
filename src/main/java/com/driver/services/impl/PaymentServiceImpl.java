@@ -25,7 +25,7 @@ public class PaymentServiceImpl implements PaymentService {
         Optional<Reservation> optionalReservation=reservationRepository2.findById(reservationId);
         Reservation reservation=optionalReservation.get();
         Spot spot=reservation.getSpot();
-        if(spot.getPricePerHour()!=amountSent) {
+        if(spot.getPricePerHour()*reservation.getNumberOfHours()>amountSent) {
             throw new Exception("Insufficient Amount");
         }
         mode=mode.toUpperCase();
