@@ -34,11 +34,11 @@ public class Payment {
         return paymentCompleted;
     }
 
-    public void isPaymentCompleted(Boolean paymentCompleted) {
+    public void setPaymentCompleted(Boolean paymentCompleted) {
         this.paymentCompleted = paymentCompleted;
     }
 
-    public PaymentMode getPaymentMode() {
+    public PaymentMode isPaymentMode() {
         return paymentMode;
     }
 
