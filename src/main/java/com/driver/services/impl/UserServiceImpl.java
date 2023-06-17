@@ -6,7 +6,7 @@ import com.driver.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -15,30 +15,26 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository4;
     @Override
     public void deleteUser(Integer userId) {
-        Optional<User> optionalUser=userRepository4.findById(userId);
-        if(!optionalUser.isPresent()){
-            return;
-        }
-        userRepository4.delete(optionalUser.get());
+        userRepository4.deleteById(userId);
     }
 
     @Override
-    public User updatePassword(Integer userId, String password)  {
-
-        Optional<User> optionalUser=userRepository4.findById(userId);
-        if(!optionalUser.isPresent()) return new User();
-        User user=optionalUser.get();
+    public User updatePassword(Integer userId, String password) {
+        User user = userRepository4.findById(userId).get();
         user.setPassword(password);
+
         userRepository4.save(user);
+
         return user;
     }
 
     @Override
     public void register(String name, String phoneNumber, String password) {
-        User user=new User();
+        User user = new User();
         user.setName(name);
-        user.setPhoneNumber(phoneNumber);
         user.setPassword(password);
+        user.setPhoneNumber(phoneNumber);
+
         userRepository4.save(user);
     }
 }

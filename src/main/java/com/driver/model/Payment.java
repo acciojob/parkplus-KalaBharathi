@@ -17,10 +17,18 @@ public class Payment {
 
     @OneToOne
     @JoinColumn(name = "Reservation")
-    Reservation reservation;
+    private Reservation reservation;
 
     public int getId() {
         return id;
+    }
+
+    public Reservation getReservation() {
+        return reservation;
+    }
+
+    public void setReservation(Reservation reservation) {
+        this.reservation = reservation;
     }
 
     public void setId(int id) {

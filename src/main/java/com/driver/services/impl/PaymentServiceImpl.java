@@ -10,8 +10,6 @@ import com.driver.services.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 public class PaymentServiceImpl implements PaymentService {
     @Autowired
@@ -21,27 +19,60 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment pay(Integer reservationId, int amountSent, String mode) throws Exception {
-        Payment payment=new Payment();
-        Optional<Reservation> optionalReservation=reservationRepository2.findById(reservationId);
-        Reservation reservation=optionalReservation.get();
-        Spot spot=reservation.getSpot();
-        if(spot.getPricePerHour()*reservation.getNumberOfHours()>amountSent) {
-            throw new Exception("Insufficient Amount");
-        }
-        mode=mode.toUpperCase();
-        PaymentMode paymentMode=null;
-        if((PaymentMode.valueOf(mode).compareTo(PaymentMode.CARD))==0) paymentMode=PaymentMode.CARD;
-        else if((PaymentMode.valueOf(mode).compareTo(PaymentMode.CASH))==0) paymentMode=PaymentMode.CASH;
-        else if((PaymentMode.valueOf(mode).compareTo(PaymentMode.UPI))==0) paymentMode=PaymentMode.UPI;
+        //Attempt a payment of amountSent for reservationId using the given mode ("cASh", "card", or "upi")
+        //If the amountSent is less than bill, throw "Insufficient Amount" exception, otherwise update payment attributes
+        //If the mode contains a string other than "cash", "card", or "upi" (any character in uppercase or lowercase), throw "Payment mode not detected" exception.
+        //Note that the reservationId always exists
+        Reservation reservation = reservationRepository2.findById(reservationId).get();
+        Spot spot = reservation.getSpot();
+        int time = reservation.getNumberOfHours();
+        int charge = reservation.getSpot().getPricePerHour();
+        int bill = time * charge;
+//        if(bill > amountSent) {
+//            throw new Exception("Insufficient Amount");
+//        }
+//        Payment payment = new Payment();
+//        if(mode.equalsIgnoreCase("cash")) {
+//            payment.setPaymentMode(PaymentMode.CASH);
+//        } else if (mode.equalsIgnoreCase("upi")) {
+//            payment.setPaymentMode(PaymentMode.UPI);
+//        } else if(mode.equalsIgnoreCase("card")) {
+//            payment.setPaymentMode(PaymentMode.CARD);
+//        } else {
+//            throw new Exception("Payment mode not detected");
+//        }
+//        payment.setPaymentCompleted(Boolean.TRUE);
+//        payment.setReservation(reservation);
+//        reservation.setPayment(payment);
+//        reservationRepository2.save(reservation);
+//        return payment;
 
-        if(paymentMode==null) {
+        if(mode.equalsIgnoreCase("cash")||mode.equalsIgnoreCase("card")||mode.equalsIgnoreCase("upi")){
+
+            if(amountSent != bill) {
+                throw new Exception("Insufficient Amount");
+            }
+
+            Payment payment = new Payment();
+            if(mode.equalsIgnoreCase("cash")) {
+                payment.setPaymentMode(PaymentMode.CASH);
+            }
+            else if (mode.equalsIgnoreCase("card")) {
+                payment.setPaymentMode(PaymentMode.CARD);
+            }
+            else {
+                payment.setPaymentMode(PaymentMode.UPI);
+            }
+
+            payment.setPaymentCompleted(Boolean.TRUE);
+            payment.setReservation(reservation);
+            reservation.setPayment(payment);
+
+            reservationRepository2.save(reservation);
+            return payment;
+        }
+        else {
             throw new Exception("Payment mode not detected");
         }
-        payment.setPaymentMode(paymentMode);
-        payment.setPaymentCompleted(true);
-        paymentRepository2.save(payment);
-        reservation.setPayment(payment);
-        reservationRepository2.save(reservation);
-        return payment;
     }
 }
